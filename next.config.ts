@@ -1,7 +1,22 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    turbopack: {
+        root: __dirname,
+    },
+
+    reactStrictMode: false,
+
+    async redirects() {
+        return [
+            {
+                source: "/",
+                destination: "/invite",
+                permanent: true,
+            },
+        ];
+    },
 };
 
 export default nextConfig;
