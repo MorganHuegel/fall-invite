@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
 
     reactStrictMode: false,
 
+    images: {
+        dangerouslyAllowSVG: true,
+    },
+
     async redirects() {
         return [
             {

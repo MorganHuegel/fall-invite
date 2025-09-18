@@ -1,5 +1,6 @@
-import styles from "./invite.module.css";
+import Link from "next/link";
 import DetailLine from "./components/detailLine";
+import styles from "./invite.module.css";
 
 export default function InvitePage() {
     return (
@@ -12,7 +13,7 @@ export default function InvitePage() {
                 <ul className={styles.details}>
                     <DetailLine
                         question="Occasion:"
-                        detail="A Fall celebration with friends, food, and games"
+                        detail="Fall celebration with friends, food, and Autumn-themed games"
                     />
                     <DetailLine
                         question="When:"
@@ -38,7 +39,9 @@ export default function InvitePage() {
                 </ul>
             </div>
             <div className={styles.rsvp}>
-                <a className={styles.link}>RSVP</a>
+                <Link className={styles.link} href="/rsvp">
+                    RSVP
+                </Link>
             </div>
         </>
     );

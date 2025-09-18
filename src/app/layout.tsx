@@ -25,7 +25,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${imperialScript.variable} ${frijole.variable}`}>
+            <body
+                className={`${imperialScript.variable} ${frijole.variable}`}
+                suppressHydrationWarning
+            >
                 {children}
             </body>
         </html>

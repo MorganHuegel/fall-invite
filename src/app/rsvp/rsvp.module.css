@@ -1,0 +1,226 @@
+.layout {
+    background-color: var(--fallBrown);
+}
+
+.page {
+    --disabled-gray: rgb(180, 180, 180);
+    --big-font: 32px;
+    scroll-snap-type: y mandatory;
+    height: 100vh;
+    overflow-y: scroll;
+}
+
+button:hover,
+button:active,
+button:focus {
+    cursor: pointer;
+    transition: background-color 0.15s linear;
+}
+
+.page1,
+.page2,
+.page3 {
+    height: 100vh;
+    padding: 60px 20px 20px 20px;
+    overflow-y: scroll;
+    position: relative;
+    scroll-snap-align: start;
+}
+
+.downPage {
+    background: none;
+    border: none;
+    padding: 3px 6px 1px 6px;
+    margin: 0;
+    position: absolute;
+    bottom: 30px;
+    left: calc(50% - 20px);
+    border-radius: 5px;
+    transition: all 0.5s linear;
+}
+
+.page1 {
+    .attendingMsg {
+        font-size: var(--big-font);
+    }
+
+    .yes,
+    .no {
+        display: block;
+        text-align: center;
+        width: 300px;
+        margin: 32px auto;
+        border-radius: 31px;
+        border-width: 5px;
+        border-color: var(--fallBrown);
+        border-style: solid;
+        transition: border-color 0.15s linear;
+
+        &:hover,
+        &:active,
+        &:focus,
+        &.highlight {
+            border-color: var(--fallYellow);
+        }
+    }
+
+    .rsvpButton {
+        display: inline-block;
+        width: 290px;
+        font-size: var(--big-font);
+        padding: 15px;
+        border-radius: 25px;
+        border-width: 5px;
+        border-style: double;
+    }
+
+    .yes .rsvpButton {
+        background-color: var(--fallCream);
+        border-color: var(--fallRed);
+        &:hover,
+        &:active,
+        &:focus {
+            background-color: color-mix(
+                in srgb,
+                var(--fallCream),
+                black 10%
+            ); /* Mix 10% black for darkening */
+        }
+    }
+
+    .no .rsvpButton {
+        background-color: var(--fallRed);
+        border-color: var(--fallCream);
+        color: var(--fallCream);
+        &:hover,
+        &:active,
+        &:focus {
+            background-color: color-mix(
+                in srgb,
+                var(--fallRed),
+                black 10%
+            ); /* Mix 10% black for darkening */
+        }
+    }
+
+    .rsvpButton.disabled {
+        color: white;
+        background-color: var(--disabled-gray);
+        border: none;
+        border-color: var(--disabled-gray);
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: color-mix(
+                in srgb,
+                var(--disabled-gray),
+                black 10%
+            ); /* Mix 10% black for darkening */
+        }
+    }
+
+    .notAttendingMessage {
+        text-align: center;
+        margin-top: 64px;
+        font-size: 24px;
+        .emoji {
+            font-size: 100px;
+            display: block;
+        }
+    }
+}
+
+.page2 {
+    .label {
+        font-size: var(--big-font);
+        display: block;
+    }
+    .label[for="guests"] {
+        margin-top: 64px;
+    }
+
+    .input {
+        margin-top: 16px;
+        font-size: var(--big-font);
+        padding: 20px;
+        max-width: 100%;
+        text-align: center;
+        background-color: var(--fallCream);
+        font-family: var(--font-cursive);
+    }
+}
+
+.page3 {
+    padding-bottom: 0;
+
+    .bring {
+        font-size: var(--big-font);
+    }
+    .bringTagLine {
+        font-size: 16px;
+        font-style: italic;
+        margin: 4px 0 32px 0;
+    }
+
+    .itemsToBring {
+        list-style: none;
+
+        .item {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            &.claimed {
+                text-decoration: line-through;
+                font-style: italic;
+            }
+
+            .checkbox {
+                margin-right: 11px;
+                width: 32px;
+                height: 32px;
+            }
+        }
+    }
+
+    .submit {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        padding: 20px 0;
+        background-color: var(--fallBrown);
+
+        button {
+            width: 200px;
+            background-color: var(--fallRed);
+            border-color: var(--fallCream);
+            border-radius: 10px;
+            border-style: double;
+            border-width: 5px;
+            font-size: var(--big-font);
+            color: var(--fallCream);
+            padding: 16px;
+
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: color-mix(
+                    in srgb,
+                    var(--fallRed),
+                    black 10%
+                ); /* Mix 10% black for darkening */
+            }
+        }
+    }
+
+    .itemRecap {
+        margin: 16px 0;
+    }
+}
