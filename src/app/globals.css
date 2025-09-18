@@ -25,3 +25,11 @@ a {
     color: inherit;
     text-decoration: none;
 }
+
+.cursive {
+    font-family: var(--font-cursive);
+}
+
+.frijole {
+    font-family: var(--font-frijole);
+}

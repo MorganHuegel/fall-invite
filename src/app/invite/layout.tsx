@@ -17,6 +17,7 @@ export default function LeafLayout({
 }>) {
     // `leafMultiplier` is "X" leaves per 100px of screen width
     const leafMultiplier = 5;
+    // const leafMultiplier = 0;
     const numOfLeaves = Math.floor((window.innerWidth / 100) * leafMultiplier);
 
     let leaves: React.ReactNode[] = [];

@@ -1,5 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Imperial_Script, Frijole } from "next/font/google";
+
+const imperialScript = Imperial_Script({
+    variable: "--font-cursive",
+    weight: ["400"],
+});
+
+const frijole = Frijole({
+    variable: "--font-frijole",
+    weight: ["400"],
+});
 
 export const metadata: Metadata = {
     title: "Invitation to Fall Celebration",
@@ -14,7 +25,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body>{children}</body>
+            <body className={`${imperialScript.variable} ${frijole.variable}`}>
+                {children}
+            </body>
         </html>
     );
 }
