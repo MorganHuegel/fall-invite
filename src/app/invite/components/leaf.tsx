@@ -13,10 +13,19 @@ const INITIAL_STATE = {
 
 export default function Leaf({
     src,
-    alt,
+    width,
     initialLeft,
-}: Readonly<{ src: string; alt: string; initialLeft: string }>) {
-    const [animationState, setAnimationState] = useState(INITIAL_STATE);
+    initialDelay,
+}: Readonly<{
+    src: string;
+    width: number;
+    initialLeft: string;
+    initialDelay: number;
+}>) {
+    const [animationState, setAnimationState] = useState({
+        ...INITIAL_STATE,
+        duration: initialDelay,
+    });
     const [isDone, setIsDone] = useState(false);
 
     function startAnimation() {
@@ -26,17 +35,28 @@ export default function Leaf({
             setIsDone(true);
         } else {
             setAnimationState(prev => {
+                const speed = Math.floor(Math.random() * 100) + 200; // 200-300 px/sec
+                let duration = Math.random() * 4 + 2; // 2-6 sec
+                duration = Math.round(duration * 1000) / 1000; // round to 3 decimal places
+
+                /* we want somewhat constant speed,
+                 * so if duration is high, make sure distance is high
+                 * if duration is low, make sure distance is proportionally low
+                 *
+                 * Speed=Distance/Time, so Distance=Speed*Time
+                 */
+
+                const translateYFurther = speed * duration;
+
                 return {
                     ...prev,
                     translateX: Math.floor(
-                        prev.translateX + (Math.random() * 300 - 150) // between -150px and 150px
+                        prev.translateX + (Math.random() * 500 - 250) // between -250px and 250px
                     ),
-                    translateY: Math.floor(
-                        prev.translateY + (Math.random() * 600 - 30) // between -30px and 570px
-                    ),
+                    translateY: prev.translateY + translateYFurther,
                     rotateX: Math.floor(Math.random() * 1000),
                     rotateY: Math.floor(Math.random() * 1000),
-                    duration: Math.floor(Math.random() * 4000) + 2000,
+                    duration: duration * 1000,
                     animationNumber: prev.animationNumber + 1,
                 };
             });
@@ -44,13 +64,12 @@ export default function Leaf({
     }
 
     useEffect(() => {
-        startAnimation();
-    }, []);
-
-    useEffect(() => {
         if (!isDone) {
             setTimeout(startAnimation, animationState.duration);
         }
+        /* this Timeout is also triggered on page load,
+         * so first leaf drop is after initialDuration
+         */
     }, [animationState, isDone]);
 
     useEffect(() => {
@@ -66,7 +85,7 @@ export default function Leaf({
              */
             setTimeout(() => {
                 setIsDone(false);
-            }, 100);
+            }, 1000);
         }
     }, [isDone]);
 
@@ -89,9 +108,9 @@ export default function Leaf({
                         ? "none"
                         : `transform ${animationState.duration}ms linear`,
                 }}
-                alt={alt}
-                width={50}
-                height={50}
+                alt="leaf"
+                width={width}
+                height={width} // all images are almost squares
             />
         </span>
     );
