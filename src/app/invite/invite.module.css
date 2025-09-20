@@ -22,11 +22,30 @@
     }
 
     .tagline {
-        font-size: 36px;
-        text-align: center;
-        color: var(--fallOrange);
-        line-height: 1em;
-        margin-top: 64px;
+        position: relative;
+        margin-top: 32px;
+        padding-bottom: 100px;
+
+        p {
+            font-size: 36px;
+            line-height: 1em;
+            color: var(--fallOrange);
+            text-align: center;
+        }
+
+        img {
+            position: absolute;
+            z-index: -1;
+        }
+
+        .pumpkin {
+            bottom: -30px;
+            left: -5px;
+        }
+        .cornucopia {
+            bottom: -15px;
+            right: -10px;
+        }
     }
 
     .details {
@@ -34,6 +53,10 @@
         color: var(--fallCream);
         margin: 64px auto 0 auto;
         max-width: 400px;
+
+        .address {
+            font-style: normal;
+        }
     }
 }
 

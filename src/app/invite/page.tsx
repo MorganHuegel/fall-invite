@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import DetailLine from "./components/detailLine";
 import styles from "./invite.module.css";
 
@@ -9,7 +10,23 @@ export default function InvitePage() {
                 <p className={"cursive " + styles.invitedMsg}>
                     You&apos;re Invited
                 </p>
-                <p className={"frijole " + styles.tagline}>Fall Celebration</p>
+                <div className={styles.tagline}>
+                    <p className="frijole">Fall Celebration</p>
+                    <Image
+                        src="/pumpkin1.png"
+                        alt="Pumpkin"
+                        width={160}
+                        height={135}
+                        className={styles.pumpkin}
+                    />
+                    <Image
+                        src="/cornucopia1.png"
+                        alt="Cornucopia"
+                        width={190}
+                        height={130}
+                        className={styles.cornucopia}
+                    />
+                </div>
                 <ul className={styles.details}>
                     <DetailLine
                         question="Occasion:"
@@ -22,7 +39,7 @@ export default function InvitePage() {
                     <DetailLine
                         question="Location:"
                         detail={
-                            <address>
+                            <address className={styles.address}>
                                 <p>836 Southpoint Crossing Drive</p>
                                 <p>Durham, NC 27713</p>
                             </address>
