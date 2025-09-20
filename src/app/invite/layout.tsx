@@ -18,13 +18,14 @@ export default function LeafLayout({
 }>) {
     // `leafMultiplier` is "X" leaves per 100px of screen width
     const leafMultiplier = 5;
-    const numOfLeaves = Math.floor((window.innerWidth / 100) * leafMultiplier);
+    const numOfLeaves =
+        typeof window === "undefined"
+            ? 0
+            : Math.floor((window.innerWidth / 100) * leafMultiplier);
 
-    const [leaves, setLeaves]: [Array<React.ReactNode>, Function] = useState(
-        []
-    );
+    const [leaves, setLeaves] = useState<React.ReactNode[]>([]);
     useEffect(() => {
-        let leafList: React.ReactNode[] = [];
+        const leafList: React.ReactNode[] = [];
         for (let n = 0; n < numOfLeaves; n++) {
             const src =
                 leafOptions[Math.floor(Math.random() * leafOptions.length)];
