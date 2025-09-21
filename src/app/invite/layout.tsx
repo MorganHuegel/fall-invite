@@ -18,7 +18,13 @@ export default function LeafLayout({
         <div>
             {/* preload so they render first on server-side, and client component can use cached files */}
             <div className={styles.preloadImages}>
-                {leafOptions.map((src, n) => (
+                {[
+                    ...leafOptions,
+                    "/cornucopia1.png",
+                    "/down.svg",
+                    "/pumpkin_smiling.png",
+                    "/pumpkin1.png",
+                ].map((src, n) => (
                     <Image
                         src={src}
                         key={n}
