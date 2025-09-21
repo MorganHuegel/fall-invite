@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import styles from "./rsvp.module.css";
+import { redirect } from "next/navigation";
 
 const LOCAL_STORAGE_RSVP_KEY = "fall_invite_rsvp";
 const LOCAL_STORAGE_NAME_KEY = "fall_invite_name";
@@ -13,67 +14,42 @@ const LOCAL_STORAGE_ITEMS_TO_BRING_KEY = "fall_invite_items_to_bring";
 const stuffToBring = [
     {
         name: "Drink (alcoholic)",
-        required: 2,
+        max: 5,
         claimed: 2,
     },
     {
         name: "Drink (non-alcoholic)",
-        required: 2,
+        max: 2,
         claimed: 0,
     },
     {
         name: "Dessert",
-        required: 5,
+        max: 5,
         claimed: 1,
     },
     {
-        name: "Side dish/snack",
-        required: 5,
+        name: "Side dish",
+        max: 5,
+        claimed: 2,
+    },
+    {
+        name: "Snack",
+        max: 5,
+        claimed: 2,
+    },
+    {
+        name: "Something Vegetarian/Vegan",
+        max: 3,
         claimed: 2,
     },
     {
         name: "Paper plates",
-        required: 1,
+        max: 1,
         claimed: 1,
     },
     {
         name: "Plastic utensils",
-        required: 1,
-        claimed: 0,
-    },
-    {
-        name: "Plastic utensils",
-        required: 1,
-        claimed: 0,
-    },
-    {
-        name: "Plastic utensils",
-        required: 1,
-        claimed: 0,
-    },
-    {
-        name: "Plastic utensils",
-        required: 1,
-        claimed: 0,
-    },
-    {
-        name: "Plastic utensils",
-        required: 1,
-        claimed: 0,
-    },
-    {
-        name: "Plastic utensils",
-        required: 1,
-        claimed: 0,
-    },
-    {
-        name: "Plastic utensils",
-        required: 1,
-        claimed: 0,
-    },
-    {
-        name: "Plastic utensils",
-        required: 1,
+        max: 1,
         claimed: 0,
     },
 ];
@@ -88,6 +64,7 @@ export default function RsvpPage() {
     const [itemsToBring, setItemsToBring] = useState<string[]>([]);
     const [downButtonTransition, setDownButtonTransition] =
         useState<boolean>(false);
+    const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
     const page2Ref = useRef<HTMLDivElement>(null);
     const page3Ref = useRef<HTMLDivElement>(null);
@@ -156,6 +133,13 @@ export default function RsvpPage() {
         }
     }, [isAttending, nameInput, guestsInput]);
 
+    useEffect(() => {
+        async function updateBackend() {
+            // console.log("sending values to backend...");
+        }
+        updateBackend();
+    }, [isAttending, nameInput, guestsInput, itemsToBring]);
+
     function clickIsAttending(bool: boolean) {
         setIsAttending(bool);
         window.localStorage.setItem(LOCAL_STORAGE_RSVP_KEY, String(bool));
@@ -203,6 +187,10 @@ export default function RsvpPage() {
         }
     }
 
+    function handleSubmit() {
+        setIsSubmitted(true);
+    }
+
     function renderDownButton(nextPage: number) {
         if (!visiblePages.includes(nextPage)) {
             return null;
@@ -230,6 +218,10 @@ export default function RsvpPage() {
                 <Image src="/down.svg" alt="down" width={40} height={40} />
             </button>
         );
+    }
+
+    if (isSubmitted) {
+        return redirect(`/success`);
     }
 
     return (
@@ -317,8 +309,8 @@ export default function RsvpPage() {
                         <ul className={styles.itemsToBring}>
                             {stuffToBring
                                 .sort((a, b) => {
-                                    const isAClaimed = a.claimed >= a.required;
-                                    const isBClaimed = b.claimed >= b.required;
+                                    const isAClaimed = a.claimed >= a.max;
+                                    const isBClaimed = b.claimed >= b.max;
                                     if (isAClaimed && !isBClaimed) {
                                         return 1;
                                     } else if (isBClaimed && !isAClaimed) {
@@ -332,8 +324,7 @@ export default function RsvpPage() {
                                     );
 
                                     const isClaimedByOther =
-                                        !isChecked &&
-                                        item.claimed >= item.required;
+                                        !isChecked && item.claimed >= item.max;
 
                                     return (
                                         <li
@@ -371,7 +362,9 @@ export default function RsvpPage() {
                             <b>{itemsToBring.join(", ")}</b>
                         </p>
                         <div className={styles.submit}>
-                            <button>Submit</button>
+                            <button onClick={handleSubmit} type="submit">
+                                Submit
+                            </button>
                         </div>
                     </div>
                 )}

@@ -1,11 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import DetailLine from "./components/detailLine";
+import Leaves from "./leaves";
 import styles from "./invite.module.css";
 
 export default function InvitePage() {
     return (
         <>
+            <Leaves />
             <div className={styles.outerPage}>
                 <p className={"cursive " + styles.invitedMsg}>
                     You&apos;re Invited

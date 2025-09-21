@@ -1,10 +1,8 @@
-"use client";
+import Image from "next/image";
+import styles from "./invite.module.css";
+import Leaves from "./leaves";
 
-import { useState, useEffect } from "react";
-import style from "./invite.module.css";
-import Leaf from "./components/leaf";
-
-const leafOptions = [
+export const leafOptions = [
     "/leaf_brown.png",
     "/leaf_orange.png",
     "/leaf_yellow.png",
@@ -16,44 +14,20 @@ export default function LeafLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    // `leafMultiplier` is "X" leaves per 100px of screen width
-    const leafMultiplier = 5;
-    const numOfLeaves =
-        typeof window === "undefined"
-            ? 0
-            : Math.floor((window.innerWidth / 100) * leafMultiplier);
-
-    const [leaves, setLeaves] = useState<React.ReactNode[]>([]);
-    useEffect(() => {
-        const leafList: React.ReactNode[] = [];
-        for (let n = 0; n < numOfLeaves; n++) {
-            const src =
-                leafOptions[Math.floor(Math.random() * leafOptions.length)];
-            const width = Math.round(Math.random() * 30) + 20;
-
-            leafList.push(
-                <Leaf
-                    src={src}
-                    width={width}
-                    initialLeft={
-                        numOfLeaves === 1
-                            ? "50%"
-                            : `${Math.floor((n / numOfLeaves) * 100)}%`
-                    }
-                    initialDelay={
-                        Math.floor(Math.random() * 10000) // between 0-10 sec
-                    }
-                    key={n}
-                />
-            );
-        }
-
-        setLeaves(leafList);
-    }, [numOfLeaves]);
-
     return (
-        <div className={style.leafContainer}>
-            {leaves}
+        <div>
+            {/* preload so they render first on server-side, and client component can use cached files */}
+            <div className={styles.preloadImages}>
+                {leafOptions.map((src, n) => (
+                    <Image
+                        src={src}
+                        key={n}
+                        alt="leaf"
+                        height={10}
+                        width={10}
+                    />
+                ))}
+            </div>
             {children}
         </div>
     );
