@@ -6,6 +6,15 @@ interface GuestParams {
     id: string;
 }
 
+interface NewGuest {
+    isNew: boolean;
+    id: number;
+    name: string;
+    rsvp: boolean;
+    attendees: number;
+    itemsToBring: string[];
+}
+
 export async function GET(
     req: NextRequest,
     { params }: { params: Promise<GuestParams> }
@@ -30,7 +39,7 @@ export async function GET(
         return NextResponse.json({ ...newGuest[0], isNew: true });
     }
 
-    const newGuest = {
+    const newGuest: NewGuest = {
         isNew: false,
         id: result[0].id,
         name: result[0].name,
