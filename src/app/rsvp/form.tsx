@@ -5,63 +5,25 @@ import Image from "next/image";
 import styles from "./rsvp.module.css";
 import { redirect } from "next/navigation";
 
-const LOCAL_STORAGE_RSVP_KEY = "fall_invite_rsvp";
-const LOCAL_STORAGE_NAME_KEY = "fall_invite_name";
-const LOCAL_STORAGE_GUESTS_KEY = "fall_invite_guests";
-const LOCAL_STORAGE_ITEMS_TO_BRING_KEY = "fall_invite_items_to_bring";
+const LOCAL_STORAGE_GUEST_ID = "fall_invite_guest_id";
 
-// will come from server
-const stuffToBring = [
-    {
-        name: "Drink (alcoholic)",
-        max: 5,
-        claimed: 2,
-    },
-    {
-        name: "Drink (non-alcoholic)",
-        max: 2,
-        claimed: 0,
-    },
-    {
-        name: "Dessert",
-        max: 5,
-        claimed: 1,
-    },
-    {
-        name: "Side dish",
-        max: 5,
-        claimed: 2,
-    },
-    {
-        name: "Snack",
-        max: 5,
-        claimed: 2,
-    },
-    {
-        name: "Something Vegetarian/Vegan",
-        max: 3,
-        claimed: 2,
-    },
-    {
-        name: "Paper plates",
-        max: 1,
-        claimed: 1,
-    },
-    {
-        name: "Plastic utensils",
-        max: 1,
-        claimed: 0,
-    },
-];
+interface Item {
+    id: number;
+    name: string;
+    max: number;
+    claimed: number;
+}
 
-export default function RsvpPage() {
+export default function RsvpPage({ items }: { items: Item[] }) {
     const [fallYellowHex, setFallYellowHex] = useState("#ffffff");
+    const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
+    const [guestId, setGuestId] = useState<number | null>(null);
     const [isAttending, setIsAttending] = useState<boolean | null>(null);
     const [currPage, setCurrPage] = useState<number>(1);
     const [visiblePages, setVisiblePages] = useState<number[]>([1]);
     const [nameInput, setNameInput] = useState<string>("");
-    const [guestsInput, setGuestsInput] = useState<number | string>("");
-    const [itemsToBring, setItemsToBring] = useState<string[]>([]);
+    const [attendeesInput, setAttendeesInput] = useState<number | string>("");
+    const [itemsToBring, setItemsToBring] = useState<null | string[]>(null);
     const [downButtonTransition, setDownButtonTransition] =
         useState<boolean>(false);
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -78,33 +40,68 @@ export default function RsvpPage() {
                     .getPropertyValue("--fallYellow")
             );
 
-            const existingRsvp = window.localStorage.getItem(
-                LOCAL_STORAGE_RSVP_KEY
-            );
-            setIsAttending(
-                typeof existingRsvp === "string"
-                    ? existingRsvp === "true"
-                    : null
+            const existingUserId = window.localStorage.getItem(
+                LOCAL_STORAGE_GUEST_ID
             );
 
-            const existingName = window.localStorage.getItem(
-                LOCAL_STORAGE_NAME_KEY
-            );
-            setNameInput(existingName || "");
-
-            const existingGuests = window.localStorage.getItem(
-                LOCAL_STORAGE_GUESTS_KEY
-            );
-            setGuestsInput(existingGuests ? parseInt(existingGuests, 10) : 1);
-
-            const existingItemsToBring = window.localStorage.getItem(
-                LOCAL_STORAGE_ITEMS_TO_BRING_KEY
-            );
-            setItemsToBring(
-                existingItemsToBring ? JSON.parse(existingItemsToBring) : []
-            );
+            if (existingUserId) {
+                setGuestId(Number(existingUserId));
+            } else {
+                (async function () {
+                    const response = await fetch("/api/guest", {
+                        method: "POST",
+                    });
+                    const data = await response.json();
+                    window.localStorage.setItem(
+                        LOCAL_STORAGE_GUEST_ID,
+                        data.id
+                    );
+                    setGuestId(data.id);
+                })();
+            }
         }
     }, []);
+
+    useEffect(() => {
+        if (guestId) {
+            (async function getUser() {
+                const response = await fetch(`/api/guest/${guestId}`, {
+                    method: "GET",
+                });
+                const data = await response.json();
+                const {
+                    isNew,
+                    rsvp: existingRsvp,
+                    name: existingName,
+                    attendees: existingAttendees,
+                    itemsToBring: existingItemsToBring,
+                } = data;
+
+                // handles case when an ID cached in local storage no longer exists on Prod database
+                if (isNew) {
+                    window.localStorage.setItem(
+                        LOCAL_STORAGE_GUEST_ID,
+                        data.id
+                    );
+                    setGuestId(data.id);
+                    return;
+                }
+
+                if (typeof existingRsvp === "string") {
+                    setIsAttending(existingRsvp === "true");
+                } else if (typeof existingRsvp === "boolean") {
+                    setIsAttending(existingRsvp);
+                }
+
+                setNameInput(existingName || "");
+                setAttendeesInput(
+                    existingAttendees ? parseInt(existingAttendees, 10) : 1
+                );
+                setItemsToBring(existingItemsToBring || []);
+                setIsInitialLoading(false);
+            })();
+        }
+    }, [guestId]);
 
     useEffect(() => {
         if (currPage === 2 && page2Ref?.current) {
@@ -122,66 +119,82 @@ export default function RsvpPage() {
         }
     }, [downButtonTransition]);
 
-    // Validate all pages
     useEffect(() => {
+        if (isInitialLoading) {
+            return;
+        }
+
         if (!isAttending) {
             setVisiblePages([1]);
-        } else if (!nameInput || !guestsInput) {
+        } else if (!nameInput || !attendeesInput) {
             setVisiblePages([1, 2]);
         } else {
             setVisiblePages([1, 2, 3]);
         }
-    }, [isAttending, nameInput, guestsInput]);
+    }, [isInitialLoading, isAttending, nameInput, attendeesInput]);
 
     useEffect(() => {
-        async function updateBackend() {
-            // console.log("sending values to backend...");
+        if (isInitialLoading) {
+            return;
         }
-        updateBackend();
-    }, [isAttending, nameInput, guestsInput, itemsToBring]);
 
-    function clickIsAttending(bool: boolean) {
-        setIsAttending(bool);
-        window.localStorage.setItem(LOCAL_STORAGE_RSVP_KEY, String(bool));
-        // backend request to update database
-        if (bool) {
-            setCurrPage(2);
+        if (isAttending === true || isAttending === false) {
+            updateBackend();
         }
+    }, [isInitialLoading, isAttending]);
+
+    useEffect(() => {
+        if (isInitialLoading) {
+            return;
+        }
+
+        updateBackend();
+    }, [isInitialLoading, itemsToBring]);
+
+    async function updateBackend() {
+        if (!guestId || isInitialLoading) {
+            return;
+        }
+
+        await fetch(`/api/guest/${guestId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                rsvp: isAttending,
+                name: nameInput,
+                attendees: attendeesInput,
+                itemsToBring,
+            }),
+        });
     }
 
     function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
         const val = event.target.value;
         setNameInput(val);
-        window.localStorage.setItem(LOCAL_STORAGE_NAME_KEY, val);
     }
 
-    function handleGuestChange(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleAttendeesChange(event: React.ChangeEvent<HTMLInputElement>) {
         let val = parseInt(event.target.value, 10);
         if (val && Number.isNaN(val)) {
             val = 1;
         }
 
-        setGuestsInput(val);
-        window.localStorage.setItem(LOCAL_STORAGE_GUESTS_KEY, String(val));
+        setAttendeesInput(val);
     }
 
     function toggleItemToBring(name: string) {
-        if (itemsToBring.includes(name)) {
-            setItemsToBring((prev: Array<string>) => {
-                const next = prev.filter(x => x !== name);
-                localStorage.setItem(
-                    LOCAL_STORAGE_ITEMS_TO_BRING_KEY,
-                    JSON.stringify(next)
-                );
+        if (itemsToBring && itemsToBring.includes(name)) {
+            setItemsToBring((prev: Array<string> | null) => {
+                const next = Array.isArray(prev)
+                    ? prev.filter(x => x !== name)
+                    : null;
                 return next;
             });
         } else {
-            setItemsToBring((prev: Array<string>) => {
-                const next = [...prev, name];
-                localStorage.setItem(
-                    LOCAL_STORAGE_ITEMS_TO_BRING_KEY,
-                    JSON.stringify(next)
-                );
+            setItemsToBring((prev: Array<string> | null) => {
+                const next = Array.isArray(prev) ? [...prev, name] : null;
                 return next;
             });
         }
@@ -220,6 +233,10 @@ export default function RsvpPage() {
         );
     }
 
+    if (isInitialLoading) {
+        return <span>...loading</span>; // loading
+    }
+
     if (isSubmitted) {
         return redirect(`/success`);
     }
@@ -234,7 +251,7 @@ export default function RsvpPage() {
                     }`}
                 >
                     <button
-                        onClick={() => clickIsAttending(true)}
+                        onClick={() => setIsAttending(true)}
                         className={`cursive ${styles.rsvpButton} ${
                             isAttending === false ? styles.disabled : ""
                         }`}
@@ -248,7 +265,7 @@ export default function RsvpPage() {
                     }`}
                 >
                     <button
-                        onClick={() => clickIsAttending(false)}
+                        onClick={() => setIsAttending(false)}
                         className={`cursive ${styles.rsvpButton} ${
                             isAttending === true ? styles.disabled : ""
                         }`}
@@ -276,18 +293,22 @@ export default function RsvpPage() {
                         value={nameInput}
                         id="name"
                         onChange={handleNameChange}
+                        onBlur={updateBackend}
                         className={styles.input}
                     />
 
-                    <label htmlFor="guests" className={styles.label}>
-                        Guests
+                    <label htmlFor="attendees" className={styles.label}>
+                        Attendees <span>(including yourself)</span>
                     </label>
                     <input
-                        name="guests"
-                        value={guestsInput}
+                        name="attendees"
+                        value={
+                            Number.isNaN(attendeesInput) ? "" : attendeesInput
+                        }
                         type="number"
-                        id="guests"
-                        onChange={handleGuestChange}
+                        id="attendees"
+                        onChange={handleAttendeesChange}
+                        onBlur={updateBackend}
                         className={styles.input}
                     />
 
@@ -297,8 +318,8 @@ export default function RsvpPage() {
 
             {isAttending === true &&
                 nameInput !== "" &&
-                !!guestsInput &&
-                !Number.isNaN(guestsInput) && (
+                !!attendeesInput &&
+                !Number.isNaN(attendeesInput) && (
                     <div className={styles.page3} ref={page3Ref}>
                         <p className={styles.bring}>
                             Would you like to bring anything?
@@ -307,7 +328,7 @@ export default function RsvpPage() {
                             It&apos;s not expected but always appreciated!
                         </p>
                         <ul className={styles.itemsToBring}>
-                            {stuffToBring
+                            {items
                                 .sort((a, b) => {
                                     const isAClaimed = a.claimed >= a.max;
                                     const isBClaimed = b.claimed >= b.max;

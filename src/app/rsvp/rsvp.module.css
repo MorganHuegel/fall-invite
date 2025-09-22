@@ -136,8 +136,13 @@ button:focus {
         font-size: var(--big-font);
         display: block;
     }
-    .label[for="guests"] {
+    .label[for="attendees"] {
         margin-top: 64px;
+
+        > span {
+            font-size: 12px;
+            font-style: italic;
+        }
     }
 
     .input {

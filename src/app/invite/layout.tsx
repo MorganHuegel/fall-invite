@@ -1,6 +1,5 @@
 import Image from "next/image";
 import styles from "./invite.module.css";
-import Leaves from "./leaves";
 
 export const leafOptions = [
     "/leaf_brown.png",
