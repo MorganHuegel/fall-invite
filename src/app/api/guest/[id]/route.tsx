@@ -29,7 +29,9 @@ export async function GET(req: NextApiRequest, { params }) {
     };
 
     for (const row of result) {
-        newGuest.itemsToBring.push(row.item_name);
+        if (row.item_name) {
+            newGuest.itemsToBring.push(row.item_name);
+        }
     }
 
     return NextResponse.json(newGuest);
@@ -37,7 +39,11 @@ export async function GET(req: NextApiRequest, { params }) {
 
 export async function PUT(req: NextApiRequest, { params }) {
     const { id } = await params;
-    const { name, attendees, rsvp, itemsToBring } = await req.json();
+    let { name, attendees, rsvp, itemsToBring } = await req.json();
+
+    if (!rsvp) {
+        itemsToBring = [];
+    }
 
     const newGuest = await sql`
         UPDATE guests
@@ -80,5 +86,13 @@ export async function PUT(req: NextApiRequest, { params }) {
         }
     }
 
-    return NextResponse.json(newGuest);
+    const newItems = await sql`
+        SELECT items.id, items.name, items.max, COUNT(items_guests_pivot.id) as "claimed"
+        FROM items
+        LEFT JOIN items_guests_pivot
+         ON items.id = items_guests_pivot.item_id
+        GROUP BY (items.id)
+    `;
+
+    return NextResponse.json({ newGuest, newItems });
 }

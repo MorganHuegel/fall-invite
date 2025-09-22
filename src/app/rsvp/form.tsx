@@ -28,6 +28,7 @@ export default function RsvpPage({ items }: { items: Item[] }) {
         useState<boolean>(false);
     const [isUpdating, setIsUpdating] = useState<boolean>(false);
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+    const [itemList, setItemList] = useState<Item[]>(items);
 
     const page2Ref = useRef<HTMLDivElement>(null);
     const page3Ref = useRef<HTMLDivElement>(null);
@@ -159,7 +160,7 @@ export default function RsvpPage({ items }: { items: Item[] }) {
 
         setIsUpdating(true);
 
-        await fetch(`/api/guest/${guestId}`, {
+        const resp = await fetch(`/api/guest/${guestId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -171,6 +172,15 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                 itemsToBring,
             }),
         });
+        const data = await resp.json();
+        if (data.newItems) {
+            setItemList(
+                data.newItems.map(item => ({
+                    ...item,
+                    claimed: Number(item.claimed || 0),
+                }))
+            );
+        }
 
         setIsUpdating(false);
     }
@@ -239,7 +249,17 @@ export default function RsvpPage({ items }: { items: Item[] }) {
     }
 
     if (isInitialLoading) {
-        return <span>...loading</span>; // loading
+        return (
+            <div className={styles.loader}>
+                <Image
+                    src="/leaf_brown.png"
+                    alt="leaf"
+                    width={50}
+                    height={50}
+                />
+                <span>Loading...</span>
+            </div>
+        );
     }
 
     if (isSubmitted) {
@@ -333,7 +353,7 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                             It&apos;s not expected but always appreciated!
                         </p>
                         <ul className={styles.itemsToBring}>
-                            {items
+                            {itemList
                                 .sort((a, b) => {
                                     const isAClaimed = a.claimed >= a.max;
                                     const isBClaimed = b.claimed >= b.max;
@@ -349,22 +369,21 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                                         ? itemsToBring.includes(item.name)
                                         : false;
 
-                                    const isClaimedByOther =
-                                        !isChecked && item.claimed >= item.max;
+                                    const isClaimed = item.claimed >= item.max;
 
                                     return (
                                         <li
                                             key={item.name + i}
                                             className={`${styles.item} ${
-                                                isClaimedByOther
-                                                    ? styles.claimed
-                                                    : ""
+                                                isClaimed ? styles.claimed : ""
                                             }`}
                                         >
                                             <input
                                                 type="checkbox"
                                                 name={item.name}
-                                                disabled={isClaimedByOther}
+                                                disabled={
+                                                    isClaimed && !isChecked
+                                                }
                                                 className={styles.checkbox}
                                                 checked={isChecked}
                                                 onChange={() =>
@@ -373,10 +392,8 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                                             />
                                             <label htmlFor={item.name}>
                                                 {item.name}
-                                                {isClaimedByOther && (
-                                                    <span>
-                                                        &nbsp;(already taken)
-                                                    </span>
+                                                {isClaimed && (
+                                                    <span>&nbsp;(done)</span>
                                                 )}
                                             </label>
                                         </li>

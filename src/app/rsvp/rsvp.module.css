@@ -1,3 +1,14 @@
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(
+            359deg
+        ); /* Rotate to 359deg to avoid a slight jump at 360deg */
+    }
+}
+
 .layout {
     background-color: var(--fallBrown);
 }
@@ -8,6 +19,24 @@
     scroll-snap-type: y mandatory;
     height: 100vh;
     overflow-y: scroll;
+}
+
+.loader {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        animation: rotation 2s infinite linear;
+    }
+
+    span {
+        margin-left: 11px;
+        font-style: italic;
+        color: var(--fallCream);
+    }
 }
 
 button:hover,
