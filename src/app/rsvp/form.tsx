@@ -86,6 +86,8 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                         data.id
                     );
                     setGuestId(data.id);
+                    setItemsToBring([]);
+                    setIsInitialLoading(false);
                     return;
                 }
 
