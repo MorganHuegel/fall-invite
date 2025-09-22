@@ -90,7 +90,7 @@ export async function PUT(
             FROM ITEMS
         `;
 
-        const itemIdsToInsert = [];
+        const itemIdsToInsert: number[] = [];
         allItems.forEach(item => {
             if (itemsToBringMap[item.name]) {
                 itemIdsToInsert.push(item.id);
