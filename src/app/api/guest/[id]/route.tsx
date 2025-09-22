@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextApiRequest } from "next";
+import { NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 const sql = neon(process.env.DATABASE_URL);
 
@@ -7,7 +8,7 @@ interface GuestParams {
 }
 
 export async function GET(
-    req: NextRequest,
+    req: NextApiRequest,
     { params }: { params: Promise<GuestParams> }
 ) {
     const { id } = await params;
@@ -49,7 +50,7 @@ export async function GET(
 }
 
 export async function PUT(
-    req: NextRequest,
+    req: NextApiRequest,
     { params }: { params: Promise<GuestParams> }
 ) {
     const { id } = await params;
