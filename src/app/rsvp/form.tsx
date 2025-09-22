@@ -337,12 +337,12 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                                     } else if (isBClaimed && !isAClaimed) {
                                         return -1;
                                     }
-                                    return 0;
+                                    return a.name.localeCompare(b.name);
                                 })
                                 .map((item, i) => {
-                                    const isChecked = itemsToBring.includes(
-                                        item.name
-                                    );
+                                    const isChecked = itemsToBring
+                                        ? itemsToBring.includes(item.name)
+                                        : false;
 
                                     const isClaimedByOther =
                                         !isChecked && item.claimed >= item.max;
