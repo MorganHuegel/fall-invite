@@ -122,10 +122,6 @@ export default function RsvpPage({ items }: { items: Item[] }) {
     }, [downButtonTransition]);
 
     useEffect(() => {
-        if (isInitialLoading) {
-            return;
-        }
-
         if (!isAttending) {
             setVisiblePages([1]);
         } else if (!nameInput || !attendeesInput) {

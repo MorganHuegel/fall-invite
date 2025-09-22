@@ -29,7 +29,7 @@ export async function GET(
          ON items.id = items_guests_pivot.item_id
         WHERE guests.id = ${id}`;
 
-    if (!result[0].id) {
+    if (!Array.isArray(result) || !result[0] || !result[0].id) {
         const newGuest = await sql`
             INSERT INTO guests (updated_at)
             VALUES (NOW())
