@@ -58,7 +58,7 @@
     .details {
         list-style: none;
         color: var(--fallCream);
-        margin: 64px auto 0 auto;
+        margin: 64px auto;
         max-width: 400px;
 
         .address {
