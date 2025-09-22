@@ -175,7 +175,7 @@ export default function RsvpPage({ items }: { items: Item[] }) {
         const data = await resp.json();
         if (data.newItems) {
             setItemList(
-                data.newItems.map(item => ({
+                data.newItems.map((item: Item) => ({
                     ...item,
                     claimed: Number(item.claimed || 0),
                 }))
