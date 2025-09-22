@@ -6,7 +6,7 @@ import { POST } from "../route";
 
 export async function GET(req: NextApiRequest, { params }) {
     const { id } = await params;
-    let result = await sql`
+    const result = await sql`
         SELECT guests.*, items.name as "item_name"
         FROM guests
         LEFT JOIN items_guests_pivot
@@ -19,7 +19,7 @@ export async function GET(req: NextApiRequest, { params }) {
         return POST(req);
     }
 
-    let newGuest = {
+    const newGuest = {
         isNew: false,
         id: result[0].id,
         name: result[0].name,
@@ -39,7 +39,9 @@ export async function GET(req: NextApiRequest, { params }) {
 
 export async function PUT(req: NextApiRequest, { params }) {
     const { id } = await params;
-    let { name, attendees, rsvp, itemsToBring } = await req.json();
+    const body = await req.json();
+    const { name, rsvp, attendees } = body;
+    let { itemsToBring } = body;
 
     if (!rsvp) {
         itemsToBring = [];
