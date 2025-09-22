@@ -26,6 +26,7 @@ export default function RsvpPage({ items }: { items: Item[] }) {
     const [itemsToBring, setItemsToBring] = useState<null | string[]>(null);
     const [downButtonTransition, setDownButtonTransition] =
         useState<boolean>(false);
+    const [isUpdating, setIsUpdating] = useState<boolean>(false);
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
     const page2Ref = useRef<HTMLDivElement>(null);
@@ -98,7 +99,7 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                     existingAttendees ? parseInt(existingAttendees, 10) : 1
                 );
                 setItemsToBring(existingItemsToBring || []);
-                setIsInitialLoading(false);
+                setTimeout(() => setIsInitialLoading(false), 500);
             })();
         }
     }, [guestId]);
@@ -134,27 +135,29 @@ export default function RsvpPage({ items }: { items: Item[] }) {
     }, [isInitialLoading, isAttending, nameInput, attendeesInput]);
 
     useEffect(() => {
-        if (isInitialLoading) {
+        if (isInitialLoading && !isUpdating) {
             return;
         }
 
         if (isAttending === true || isAttending === false) {
             updateBackend();
         }
-    }, [isInitialLoading, isAttending]);
+    }, [isAttending]);
 
     useEffect(() => {
-        if (isInitialLoading) {
+        if (isInitialLoading && !isUpdating) {
             return;
         }
 
         updateBackend();
-    }, [isInitialLoading, itemsToBring]);
+    }, [itemsToBring]);
 
     async function updateBackend() {
-        if (!guestId || isInitialLoading) {
+        if (!guestId || isInitialLoading || isUpdating) {
             return;
         }
+
+        setIsUpdating(true);
 
         await fetch(`/api/guest/${guestId}`, {
             method: "PUT",
@@ -168,6 +171,8 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                 itemsToBring,
             }),
         });
+
+        setIsUpdating(false);
     }
 
     function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -378,10 +383,12 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                                     );
                                 })}
                         </ul>
-                        <p className={styles.itemRecap}>
-                            You volunteered to bring:{" "}
-                            <b>{itemsToBring.join(", ")}</b>
-                        </p>
+                        {Array.isArray(itemsToBring) && itemsToBring.length ? (
+                            <p className={styles.itemRecap}>
+                                You volunteered to bring:{" "}
+                                <b>{itemsToBring.join(", ")}</b>
+                            </p>
+                        ) : null}
                         <div className={styles.submit}>
                             <button onClick={handleSubmit} type="submit">
                                 Submit
