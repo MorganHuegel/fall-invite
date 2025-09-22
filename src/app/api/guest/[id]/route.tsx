@@ -1,10 +1,15 @@
-import type { NextApiRequest } from "next";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 const sql = neon(process.env.DATABASE_URL);
-import { POST } from "../route";
 
-export async function GET(req: NextApiRequest, { params }) {
+interface GuestParams {
+    id: string;
+}
+
+export async function GET(
+    req: NextRequest,
+    { params }: { params: Promise<GuestParams> }
+) {
     const { id } = await params;
     const result = await sql`
         SELECT guests.*, items.name as "item_name"
@@ -16,7 +21,13 @@ export async function GET(req: NextApiRequest, { params }) {
         WHERE guests.id = ${id}`;
 
     if (!result[0].id) {
-        return POST(req);
+        const newGuest = await sql`
+            INSERT INTO guests (updated_at)
+            VALUES (NOW())
+            RETURNING *
+        `;
+
+        return NextResponse.json({ ...newGuest[0], isNew: true });
     }
 
     const newGuest = {
@@ -37,7 +48,10 @@ export async function GET(req: NextApiRequest, { params }) {
     return NextResponse.json(newGuest);
 }
 
-export async function PUT(req: NextApiRequest, { params }) {
+export async function PUT(
+    req: NextRequest,
+    { params }: { params: Promise<GuestParams> }
+) {
     const { id } = await params;
     const body = await req.json();
     const { name, rsvp, attendees } = body;
