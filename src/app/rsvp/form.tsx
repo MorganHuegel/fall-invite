@@ -353,13 +353,6 @@ export default function RsvpPage({ items }: { items: Item[] }) {
                         <ul className={styles.itemsToBring}>
                             {itemList
                                 .sort((a, b) => {
-                                    const isAClaimed = a.claimed >= a.max;
-                                    const isBClaimed = b.claimed >= b.max;
-                                    if (isAClaimed && !isBClaimed) {
-                                        return 1;
-                                    } else if (isBClaimed && !isAClaimed) {
-                                        return -1;
-                                    }
                                     return a.name.localeCompare(b.name);
                                 })
                                 .map((item, i) => {
