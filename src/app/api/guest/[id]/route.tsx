@@ -66,6 +66,7 @@ export async function PUT(
     const body = await req.json();
     const { name, rsvp, attendees } = body;
     let { itemsToBring } = body;
+    console.log("request body: " + JSON.stringify(body));
 
     if (!rsvp) {
         itemsToBring = [];
