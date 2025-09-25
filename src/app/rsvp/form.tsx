@@ -124,6 +124,12 @@ export default function RsvpPage({ items }: { items: Item[] }) {
     }, [downButtonTransition]);
 
     useEffect(() => {
+        if (isAttending === true) {
+            setCurrPage(2);
+        }
+    }, [isAttending]);
+
+    useEffect(() => {
         if (!isAttending) {
             setVisiblePages([1]);
         } else if (!nameInput || !attendeesInput) {
