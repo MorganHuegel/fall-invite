@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 const sql = neon(process?.env?.DATABASE_URL || "");
 
-interface GuestParams {
+export interface GuestParams {
     id: string;
 }
 
@@ -61,17 +61,15 @@ export async function PUT(
     req: NextRequest,
     { params }: { params: Promise<GuestParams> }
 ) {
-    console.log("-- in PUT 1 --");
     const { id } = await params;
     const body = await req.json();
     const { name, rsvp, attendees } = body;
     let { itemsToBring } = body;
-    console.log("request body: " + JSON.stringify(body));
 
     if (!rsvp) {
         itemsToBring = [];
     }
-    console.log("-- in PUT 2 --");
+
     const newGuest = await sql`
         UPDATE guests
         SET name = ${name || ""},
@@ -82,7 +80,6 @@ export async function PUT(
     `;
 
     if (Array.isArray(itemsToBring)) {
-        console.log("-- in PUT 3 --");
         const itemsToBringMap = itemsToBring.reduce((map, curr) => {
             map[curr] = true;
             return map;
@@ -99,12 +96,12 @@ export async function PUT(
                 itemIdsToInsert.push(item.id);
             }
         });
-        console.log("-- in PUT 4 --");
+
         await sql`
             DELETE FROM items_guests_pivot
             WHERE guest_id = ${id}
         `;
-        console.log("-- in PUT 5 --");
+
         // TO DO: change this into one INSERT statement
         for (const itemId of itemIdsToInsert) {
             await sql`
@@ -112,11 +109,8 @@ export async function PUT(
                 VALUES (${id}, ${itemId})
             `;
         }
-
-        console.log("-- in PUT 6 --");
     }
 
-    console.log("-- in PUT 7 --");
     const newItems = await sql`
         SELECT items.id, items.name, items.max, COUNT(items_guests_pivot.id) as "claimed"
         FROM items
@@ -124,6 +118,6 @@ export async function PUT(
          ON items.id = items_guests_pivot.item_id
         GROUP BY (items.id)
     `;
-    console.log("-- in PUT 8 --");
+
     return NextResponse.json({ newGuest, newItems });
 }
